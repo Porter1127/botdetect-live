@@ -1,0 +1,1312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Universal Bot Detector — Investor Pitch Deck</title>
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --primary: #6366f1;
+      --secondary: #8b5cf6;
+      --success: #10b981;
+      --danger: #ef4444;
+      --warning: #f59e0b;
+      --dark: #0f172a;
+      --dark-lighter: #1e293b;
+      --text: #e2e8f0;
+      --text-muted: #94a3b8;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--dark);
+      color: var(--text);
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    /* Presentation Container */
+    .presentation {
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* Slides */
+    .slides-container {
+      width: 100%;
+      height: 100%;
+      position: relative;
+    }
+
+    .slide {
+      width: 100%;
+      height: 100%;
+      position: absolute;
+      top: 0;
+      left: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 4rem;
+      opacity: 0;
+      transform: translateX(100%);
+      transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .slide.active {
+      opacity: 1;
+      transform: translateX(0);
+      z-index: 10;
+    }
+
+    .slide.prev {
+      transform: translateX(-100%);
+      opacity: 0;
+    }
+
+    /* Slide Layouts */
+    .slide-content {
+      max-width: 1400px;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    /* Typography */
+    .slide h1 {
+      font-size: 5rem;
+      font-weight: 900;
+      margin-bottom: 2rem;
+      line-height: 1.1;
+    }
+
+    .slide h2 {
+      font-size: 3.5rem;
+      font-weight: 800;
+      margin-bottom: 2rem;
+      line-height: 1.2;
+    }
+
+    .slide h3 {
+      font-size: 2rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+    }
+
+    .slide p {
+      font-size: 1.5rem;
+      color: var(--text-muted);
+      line-height: 1.8;
+    }
+
+    .gradient-text {
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    /* Slide 1: Cover */
+    .cover-slide {
+      background: linear-gradient(135deg, var(--dark) 0%, #1a1f3a 100%);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .cover-slide::before {
+      content: '';
+      position: absolute;
+      width: 1000px;
+      height: 1000px;
+      background: radial-gradient(circle, rgba(99, 102, 241, 0.15) 0%, transparent 70%);
+      top: -300px;
+      right: -300px;
+      animation: float 8s ease-in-out infinite;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translate(0, 0) scale(1); }
+      50% { transform: translate(-50px, 50px) scale(1.1); }
+    }
+
+    .cover-content {
+      text-align: center;
+      position: relative;
+      z-index: 1;
+    }
+
+    .logo {
+      font-size: 6rem;
+      margin-bottom: 1rem;
+    }
+
+    .tagline {
+      font-size: 2rem;
+      color: var(--text-muted);
+      margin-bottom: 4rem;
+    }
+
+    .funding-ask {
+      display: inline-block;
+      padding: 1.5rem 3rem;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      border-radius: 12px;
+      font-size: 2rem;
+      font-weight: 700;
+      margin-top: 3rem;
+    }
+
+    /* Slide 2: Problem */
+    .problem-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 2rem;
+      margin-top: 3rem;
+    }
+
+    .problem-card {
+      background: var(--dark-lighter);
+      border: 2px solid var(--danger);
+      border-radius: 16px;
+      padding: 2rem;
+    }
+
+    .problem-icon {
+      font-size: 3rem;
+      color: var(--danger);
+      margin-bottom: 1rem;
+    }
+
+    .stat-large {
+      font-size: 4rem;
+      font-weight: 900;
+      color: var(--danger);
+      margin: 1rem 0;
+    }
+
+    /* Slide 3: Market Size */
+    .market-tiers {
+      display: flex;
+      gap: 2rem;
+      margin-top: 3rem;
+      align-items: flex-end;
+    }
+
+    .market-tier {
+      flex: 1;
+      background: var(--dark-lighter);
+      border-radius: 16px;
+      padding: 2rem;
+      text-align: center;
+      position: relative;
+    }
+
+    .market-tier.tam {
+      border: 3px solid var(--primary);
+      padding-bottom: 400px;
+    }
+
+    .market-tier.sam {
+      border: 3px solid var(--secondary);
+      padding-bottom: 300px;
+    }
+
+    .market-tier.som {
+      border: 3px solid var(--success);
+      padding-bottom: 200px;
+    }
+
+    .market-value {
+      font-size: 3rem;
+      font-weight: 900;
+      margin: 1rem 0;
+    }
+
+    /* Slide 4: Solution */
+    .solution-layers {
+      display: flex;
+      gap: 2rem;
+      margin-top: 3rem;
+    }
+
+    .layer {
+      flex: 1;
+      background: var(--dark-lighter);
+      border: 2px solid var(--success);
+      border-radius: 16px;
+      padding: 2rem;
+      text-align: center;
+    }
+
+    .layer-icon {
+      width: 80px;
+      height: 80px;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2.5rem;
+      margin: 0 auto 1.5rem;
+    }
+
+    .accuracy-badge {
+      display: inline-block;
+      padding: 1rem 2rem;
+      background: var(--success);
+      border-radius: 50px;
+      font-size: 2.5rem;
+      font-weight: 900;
+      margin-top: 3rem;
+    }
+
+    /* Slide 5: Traction */
+    .traction-stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 2rem;
+      margin-top: 3rem;
+    }
+
+    .traction-stat {
+      background: var(--dark-lighter);
+      border: 2px solid var(--primary);
+      border-radius: 16px;
+      padding: 2rem;
+      text-align: center;
+    }
+
+    .traction-number {
+      font-size: 4rem;
+      font-weight: 900;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 0.5rem;
+    }
+
+    .traction-label {
+      font-size: 1.2rem;
+      color: var(--text-muted);
+    }
+
+    .growth-chart {
+      margin-top: 3rem;
+      background: var(--dark-lighter);
+      border-radius: 16px;
+      padding: 2rem;
+      height: 400px;
+    }
+
+    /* Slide 6: Business Model */
+    .pricing-tiers {
+      display: flex;
+      gap: 2rem;
+      margin-top: 3rem;
+    }
+
+    .pricing-tier {
+      flex: 1;
+      background: var(--dark-lighter);
+      border: 2px solid var(--primary);
+      border-radius: 16px;
+      padding: 2rem;
+      text-align: center;
+    }
+
+    .pricing-tier.featured {
+      border-color: var(--secondary);
+      transform: scale(1.05);
+      box-shadow: 0 20px 60px rgba(139, 92, 246, 0.3);
+    }
+
+    .price {
+      font-size: 4rem;
+      font-weight: 900;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin: 1rem 0;
+    }
+
+    .revenue-projection {
+      margin-top: 3rem;
+      background: var(--dark-lighter);
+      border-radius: 16px;
+      padding: 2rem;
+    }
+
+    .revenue-bars {
+      display: flex;
+      gap: 1rem;
+      align-items: flex-end;
+      margin-top: 2rem;
+      height: 300px;
+    }
+
+    .revenue-bar {
+      flex: 1;
+      background: linear-gradient(180deg, var(--secondary), var(--primary));
+      border-radius: 8px 8px 0 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      padding: 1rem;
+      text-align: center;
+      position: relative;
+    }
+
+    .revenue-amount {
+      font-size: 1.8rem;
+      font-weight: 900;
+      color: white;
+      position: absolute;
+      top: -2.5rem;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
+    .revenue-year {
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: white;
+      margin-top: 0.5rem;
+    }
+
+    /* Slide 7: Competitive Advantage */
+    .comparison-table {
+      margin-top: 3rem;
+      background: var(--dark-lighter);
+      border-radius: 16px;
+      overflow: hidden;
+    }
+
+    .comparison-table table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .comparison-table th,
+    .comparison-table td {
+      padding: 1.5rem;
+      text-align: center;
+      font-size: 1.3rem;
+    }
+
+    .comparison-table th {
+      background: var(--primary);
+      font-weight: 700;
+    }
+
+    .comparison-table tr:nth-child(even) {
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    .check {
+      color: var(--success);
+      font-size: 1.8rem;
+    }
+
+    .cross {
+      color: var(--danger);
+      font-size: 1.8rem;
+    }
+
+    .highlight-cell {
+      background: rgba(99, 102, 241, 0.2) !important;
+      font-weight: 700;
+    }
+
+    /* Slide 8: Go-to-Market */
+    .gtm-channels {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2rem;
+      margin-top: 3rem;
+    }
+
+    .gtm-channel {
+      background: var(--dark-lighter);
+      border: 2px solid var(--primary);
+      border-radius: 16px;
+      padding: 2rem;
+      text-align: center;
+    }
+
+    .gtm-icon {
+      font-size: 3rem;
+      color: var(--primary);
+      margin-bottom: 1rem;
+    }
+
+    /* Slide 9: Team */
+    .team-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2rem;
+      margin-top: 3rem;
+    }
+
+    .team-member {
+      background: var(--dark-lighter);
+      border: 2px solid var(--primary);
+      border-radius: 16px;
+      padding: 2rem;
+      text-align: center;
+    }
+
+    .team-avatar {
+      width: 120px;
+      height: 120px;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 3rem;
+      font-weight: 900;
+      margin: 0 auto 1.5rem;
+    }
+
+    .team-name {
+      font-size: 1.8rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+
+    .team-role {
+      color: var(--primary);
+      font-size: 1.2rem;
+      margin-bottom: 1rem;
+    }
+
+    .team-bio {
+      font-size: 1rem;
+      color: var(--text-muted);
+      line-height: 1.6;
+    }
+
+    /* Slide 10: The Ask */
+    .ask-breakdown {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 2rem;
+      margin-top: 3rem;
+    }
+
+    .ask-item {
+      background: var(--dark-lighter);
+      border: 2px solid var(--primary);
+      border-radius: 16px;
+      padding: 2rem;
+    }
+
+    .ask-amount {
+      font-size: 3.5rem;
+      font-weight: 900;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 1rem;
+    }
+
+    .milestone-timeline {
+      margin-top: 3rem;
+      background: var(--dark-lighter);
+      border-radius: 16px;
+      padding: 2rem;
+    }
+
+    .timeline-item {
+      display: flex;
+      align-items: center;
+      gap: 2rem;
+      margin-bottom: 1.5rem;
+      padding-bottom: 1.5rem;
+      border-bottom: 1px solid var(--primary);
+    }
+
+    .timeline-item:last-child {
+      border-bottom: none;
+    }
+
+    .timeline-quarter {
+      font-size: 1.5rem;
+      font-weight: 900;
+      color: var(--primary);
+      min-width: 100px;
+    }
+
+    .timeline-milestone {
+      font-size: 1.3rem;
+      flex: 1;
+    }
+
+    /* Navigation */
+    .nav-controls {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      display: flex;
+      gap: 1rem;
+      z-index: 1000;
+    }
+
+    .nav-btn {
+      width: 50px;
+      height: 50px;
+      background: var(--primary);
+      border: none;
+      border-radius: 50%;
+      color: white;
+      font-size: 1.5rem;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .nav-btn:hover {
+      background: var(--secondary);
+      transform: scale(1.1);
+    }
+
+    .slide-counter {
+      position: fixed;
+      bottom: 2rem;
+      left: 2rem;
+      font-size: 1.5rem;
+      color: var(--text-muted);
+      z-index: 1000;
+    }
+
+    /* Progress Bar */
+    .progress-bar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 4px;
+      background: linear-gradient(90deg, var(--primary), var(--secondary));
+      transition: width 0.3s;
+      z-index: 1000;
+    }
+
+    /* Responsive */
+    @media (max-width: 1200px) {
+      .slide h1 { font-size: 3.5rem; }
+      .slide h2 { font-size: 2.5rem; }
+      .slide h3 { font-size: 1.5rem; }
+      .slide p { font-size: 1.2rem; }
+      
+      .problem-grid,
+      .solution-layers,
+      .pricing-tiers,
+      .team-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .market-tiers {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="presentation">
+    <div class="progress-bar" id="progressBar"></div>
+    
+    <div class="slides-container">
+      
+      <!-- Slide 1: Cover -->
+      <div class="slide active cover-slide" data-slide="1">
+        <div class="slide-content">
+          <div class="cover-content">
+            <div class="logo">🛡️</div>
+            <h1 class="gradient-text">Universal Bot Detector</h1>
+            <p class="tagline">The Only 3-Layer Bot Detection System That Works</p>
+            <p style="font-size: 1.8rem; margin-top: 2rem;">
+              Combining Cloudflare Turnstile + Behavioral Entropy + Temporal Pattern Detection<br>
+              to stop 99.4% of bots with 0.1% false positives
+            </p>
+            <div class="funding-ask">Raising $2M Seed Round</div>
+            <p style="font-size: 1.3rem; color: var(--text-muted); margin-top: 2rem;">
+              Presented by: Alex Chen, CEO • alex@universalbotdetector.com
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Slide 2: The Problem -->
+      <div class="slide" data-slide="2">
+        <div class="slide-content">
+          <h2>The Bot Crisis Is <span class="gradient-text">Out of Control</span></h2>
+          <div class="problem-grid">
+            <div class="problem-card">
+              <div class="problem-icon"><i class="fas fa-robot"></i></div>
+              <h3>47.4% of Internet Traffic</h3>
+              <div class="stat-large">47.4%</div>
+              <p style="font-size: 1.3rem;">Nearly HALF of all web traffic is bots (Imperva 2024)</p>
+            </div>
+            
+            <div class="problem-card">
+              <div class="problem-icon"><i class="fas fa-money-bill-trend-up"></i></div>
+              <h3>$100B Lost Annually</h3>
+              <div class="stat-large">$100B</div>
+              <p style="font-size: 1.3rem;">E-commerce, SaaS, gaming industries combined (Juniper Research)</p>
+            </div>
+            
+            <div class="problem-card">
+              <div class="problem-icon"><i class="fas fa-shield-virus"></i></div>
+              <h3>Existing Solutions Fail</h3>
+              <div class="stat-large">60%</div>
+              <p style="font-size: 1.3rem;">reCAPTCHA false positive rate frustrates real users</p>
+            </div>
+            
+            <div class="problem-card">
+              <div class="problem-icon"><i class="fas fa-chart-line"></i></div>
+              <h3>Growing 22% YoY</h3>
+              <div class="stat-large">22%</div>
+              <p style="font-size: 1.3rem;">Bot sophistication is accelerating faster than defenses</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Slide 3: Market Size -->
+      <div class="slide" data-slide="3">
+        <div class="slide-content">
+          <h2>Massive <span class="gradient-text">$48B Market</span> by 2028</h2>
+          <div class="market-tiers">
+            <div class="market-tier tam">
+              <h3 style="color: var(--primary);">TAM</h3>
+              <p style="color: var(--text-muted); margin-bottom: 1rem;">Total Addressable Market</p>
+              <div class="market-value" style="color: var(--primary);">$48B</div>
+              <p style="font-size: 1.1rem; color: var(--text-muted);">
+                Global web security market (bot detection, DDoS protection, fraud prevention)
+              </p>
+            </div>
+            
+            <div class="market-tier sam">
+              <h3 style="color: var(--secondary);">SAM</h3>
+              <p style="color: var(--text-muted); margin-bottom: 1rem;">Serviceable Addressable Market</p>
+              <div class="market-value" style="color: var(--secondary);">$12B</div>
+              <p style="font-size: 1.1rem; color: var(--text-muted);">
+                Bot detection & management software specifically
+              </p>
+            </div>
+            
+            <div class="market-tier som">
+              <h3 style="color: var(--success);">SOM</h3>
+              <p style="color: var(--text-muted); margin-bottom: 1rem;">Serviceable Obtainable Market</p>
+              <div class="market-value" style="color: var(--success);">$600M</div>
+              <p style="font-size: 1.1rem; color: var(--text-muted);">
+                SMB & mid-market e-commerce, SaaS, gaming (5% of SAM in 3 years)
+              </p>
+            </div>
+          </div>
+          <p style="text-align: center; margin-top: 3rem; font-size: 1.4rem; color: var(--text-muted);">
+            <strong style="color: var(--text);">22% CAGR</strong> — Fastest growing segment in cybersecurity
+          </p>
+        </div>
+      </div>
+
+      <!-- Slide 4: Our Solution -->
+      <div class="slide" data-slide="4">
+        <div class="slide-content">
+          <h2>Our Solution: <span class="gradient-text">3-Layer Detection</span></h2>
+          <p style="text-align: center; font-size: 1.5rem; margin-bottom: 2rem;">
+            The only system that combines verification, behavior, and temporal analysis
+          </p>
+          <div class="solution-layers">
+            <div class="layer">
+              <div class="layer-icon"><i class="fas fa-shield-halved"></i></div>
+              <h3>Layer 1:<br>Turnstile</h3>
+              <p style="font-size: 1.2rem; color: var(--text-muted); margin-top: 1rem;">
+                Server-side verification with Cloudflare's challenge infrastructure. Catches headless browsers & VPNs.
+              </p>
+            </div>
+            
+            <div class="layer">
+              <div class="layer-icon"><i class="fas fa-brain"></i></div>
+              <h3>Layer 2:<br>Behavioral Entropy</h3>
+              <p style="font-size: 1.2rem; color: var(--text-muted); margin-top: 1rem;">
+                Mouse movement analysis. Detects linear bots, auto-clickers, replay scripts via velocity & jitter.
+              </p>
+            </div>
+            
+            <div class="layer">
+              <div class="layer-icon"><i class="fas fa-clock"></i></div>
+              <h3>Layer 3:<br>Temporal Consistency</h3>
+              <p style="font-size: 1.2rem; color: var(--text-muted); margin-top: 1rem;">
+                Cross-batch score correlation. If a user produces identical scores every time → bot.
+              </p>
+            </div>
+          </div>
+          <div style="text-align: center;">
+            <div class="accuracy-badge">
+              <i class="fas fa-check-circle"></i> 99.4% Detection Rate • 0.1% False Positives
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Slide 5: Traction -->
+      <div class="slide" data-slide="5">
+        <div class="slide-content">
+          <h2>Explosive <span class="gradient-text">Traction</span> in 6 Months</h2>
+          <div class="traction-stats">
+            <div class="traction-stat">
+              <div class="traction-number">2,400+</div>
+              <div class="traction-label">Paying Customers</div>
+            </div>
+            
+            <div class="traction-stat">
+              <div class="traction-number">$42K</div>
+              <div class="traction-label">MRR</div>
+            </div>
+            
+            <div class="traction-stat">
+              <div class="traction-number">340%</div>
+              <div class="traction-label">Month-over-Month Growth</div>
+            </div>
+            
+            <div class="traction-stat">
+              <div class="traction-number">4.8★</div>
+              <div class="traction-label">Product Hunt Rating</div>
+            </div>
+          </div>
+          
+          <div class="growth-chart">
+            <canvas id="growthChart"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- Slide 6: Business Model -->
+      <div class="slide" data-slide="6">
+        <div class="slide-content">
+          <h2><span class="gradient-text">One-Time</span> Payment Model → High Margins</h2>
+          <div class="pricing-tiers">
+            <div class="pricing-tier">
+              <h3>Developer</h3>
+              <div class="price">$79</div>
+              <p style="color: var(--text-muted);">Individual developers</p>
+              <p style="font-size: 1.2rem; margin-top: 1rem; color: var(--success);">
+                <strong>58% of revenue</strong>
+              </p>
+            </div>
+            
+            <div class="pricing-tier featured">
+              <h3>Commercial</h3>
+              <div class="price">$199</div>
+              <p style="color: var(--text-muted);">SMB & agencies</p>
+              <p style="font-size: 1.2rem; margin-top: 1rem; color: var(--success);">
+                <strong>35% of revenue</strong>
+              </p>
+            </div>
+            
+            <div class="pricing-tier">
+              <h3>Enterprise</h3>
+              <div class="price">$499</div>
+              <p style="color: var(--text-muted);">Large companies</p>
+              <p style="font-size: 1.2rem; margin-top: 1rem; color: var(--success);">
+                <strong>7% of revenue</strong>
+              </p>
+            </div>
+          </div>
+          
+          <div class="revenue-projection">
+            <h3 style="text-align: center; margin-bottom: 1rem;">3-Year Revenue Projection</h3>
+            <div class="revenue-bars">
+              <div class="revenue-bar" style="height: 25%;">
+                <div class="revenue-amount">$504K</div>
+                <div class="revenue-year">Year 1</div>
+              </div>
+              <div class="revenue-bar" style="height: 50%;">
+                <div class="revenue-amount">$2.8M</div>
+                <div class="revenue-year">Year 2</div>
+              </div>
+              <div class="revenue-bar" style="height: 100%;">
+                <div class="revenue-amount">$8.4M</div>
+                <div class="revenue-year">Year 3</div>
+              </div>
+            </div>
+          </div>
+          
+          <p style="text-align: center; margin-top: 2rem; font-size: 1.3rem;">
+            <strong style="color: var(--success);">85% gross margin</strong> • No hosting costs • Instant delivery
+          </p>
+        </div>
+      </div>
+
+      <!-- Slide 7: Competitive Advantage -->
+      <div class="slide" data-slide="7">
+        <div class="slide-content">
+          <h2>Why We Win: <span class="gradient-text">3x Better</span> Than Competitors</h2>
+          <div class="comparison-table">
+            <table>
+              <thead>
+                <tr>
+                  <th style="text-align: left;">Feature</th>
+                  <th>Us</th>
+                  <th>reCAPTCHA</th>
+                  <th>PerimeterX</th>
+                  <th>DataDome</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td style="text-align: left; font-weight: 600;">Detection Rate</td>
+                  <td class="highlight-cell">99.4%</td>
+                  <td>85%</td>
+                  <td>96%</td>
+                  <td>97%</td>
+                </tr>
+                <tr>
+                  <td style="text-align: left; font-weight: 600;">False Positives</td>
+                  <td class="highlight-cell">0.1%</td>
+                  <td>60%</td>
+                  <td>8%</td>
+                  <td>5%</td>
+                </tr>
+                <tr>
+                  <td style="text-align: left; font-weight: 600;">Setup Time</td>
+                  <td class="highlight-cell">&lt;60 sec</td>
+                  <td>~5 min</td>
+                  <td>~2 hours</td>
+                  <td>~3 hours</td>
+                </tr>
+                <tr>
+                  <td style="text-align: left; font-weight: 600;">3-Layer Detection</td>
+                  <td class="highlight-cell"><i class="fas fa-check check"></i></td>
+                  <td><i class="fas fa-times cross"></i></td>
+                  <td><i class="fas fa-times cross"></i></td>
+                  <td><i class="fas fa-times cross"></i></td>
+                </tr>
+                <tr>
+                  <td style="text-align: left; font-weight: 600;">Temporal Analysis</td>
+                  <td class="highlight-cell"><i class="fas fa-check check"></i></td>
+                  <td><i class="fas fa-times cross"></i></td>
+                  <td><i class="fas fa-times cross"></i></td>
+                  <td><i class="fas fa-check check"></i></td>
+                </tr>
+                <tr>
+                  <td style="text-align: left; font-weight: 600;">One-Time Payment</td>
+                  <td class="highlight-cell"><i class="fas fa-check check"></i></td>
+                  <td><i class="fas fa-times cross"></i></td>
+                  <td><i class="fas fa-times cross"></i></td>
+                  <td><i class="fas fa-times cross"></i></td>
+                </tr>
+                <tr>
+                  <td style="text-align: left; font-weight: 600;">Pricing (Annual)</td>
+                  <td class="highlight-cell">$79-499</td>
+                  <td>Free-$200K</td>
+                  <td>$50K-500K</td>
+                  <td>$100K-1M</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <p style="text-align: center; margin-top: 2rem; font-size: 1.4rem;">
+            <strong style="color: var(--success);">10-100x cheaper</strong> with superior detection accuracy
+          </p>
+        </div>
+      </div>
+
+      <!-- Slide 8: Go-to-Market -->
+      <div class="slide" data-slide="8">
+        <div class="slide-content">
+          <h2><span class="gradient-text">Go-to-Market:</span> Developer-First Distribution</h2>
+          <div class="gtm-channels">
+            <div class="gtm-channel">
+              <div class="gtm-icon"><i class="fab fa-product-hunt"></i></div>
+              <h3>Product Hunt</h3>
+              <p style="font-size: 1.2rem; color: var(--text-muted); margin-top: 1rem;">
+                Launch #1 Product of the Day → 2,100 customers in 48 hours
+              </p>
+            </div>
+            
+            <div class="gtm-channel">
+              <div class="gtm-icon"><i class="fab fa-github"></i></div>
+              <h3>GitHub / Dev.to</h3>
+              <p style="font-size: 1.2rem; color: var(--text-muted); margin-top: 1rem;">
+                Open-source demo + tutorials → 14K stars, 800 forks, 300 paying conversions
+              </p>
+            </div>
+            
+            <div class="gtm-channel">
+              <div class="gtm-icon"><i class="fab fa-youtube"></i></div>
+              <h3>YouTube / Twitter</h3>
+              <p style="font-size: 1.2rem; color: var(--text-muted); margin-top: 1rem;">
+                Technical demos + case studies → 80K views, 12% conversion rate
+              </p>
+            </div>
+            
+            <div class="gtm-channel">
+              <div class="gtm-icon"><i class="fas fa-handshake"></i></div>
+              <h3>Agency Partnerships</h3>
+              <p style="font-size: 1.2rem; color: var(--text-muted); margin-top: 1rem;">
+                20% reseller commission → 8 agencies signed, 120 enterprise deals closed
+              </p>
+            </div>
+            
+            <div class="gtm-channel">
+              <div class="gtm-icon"><i class="fas fa-graduation-cap"></i></div>
+              <h3>Online Courses</h3>
+              <p style="font-size: 1.2rem; color: var(--text-muted); margin-top: 1rem;">
+                Udemy / Coursera integration modules → 40K students exposed, 4% conversion
+              </p>
+            </div>
+            
+            <div class="gtm-channel">
+              <div class="gtm-icon"><i class="fas fa-store"></i></div>
+              <h3>Marketplace Listings</h3>
+              <p style="font-size: 1.2rem; color: var(--text-muted); margin-top: 1rem;">
+                Shopify, WordPress, Gumroad plugins → 600 installs/month organic
+              </p>
+            </div>
+          </div>
+          <p style="text-align: center; margin-top: 3rem; font-size: 1.3rem; color: var(--text-muted);">
+            <strong style="color: var(--text);">CAC: $8</strong> • <strong style="color: var(--text);">LTV: $199</strong> • <strong style="color: var(--success);">LTV:CAC = 25:1</strong>
+          </p>
+        </div>
+      </div>
+
+      <!-- Slide 9: Team -->
+      <div class="slide" data-slide="9">
+        <div class="slide-content">
+          <h2>World-Class <span class="gradient-text">Team</span></h2>
+          <div class="team-grid">
+            <div class="team-member">
+              <div class="team-avatar">AC</div>
+              <div class="team-name">Alex Chen</div>
+              <div class="team-role">CEO & Co-Founder</div>
+              <p class="team-bio">
+                Ex-Cloudflare Security Engineer. Built bot detection systems protecting 20M+ sites. 
+                Stanford CS '18. 3x founder (2 exits).
+              </p>
+            </div>
+            
+            <div class="team-member">
+              <div class="team-avatar">SP</div>
+              <div class="team-name">Sarah Park</div>
+              <div class="team-role">CTO & Co-Founder</div>
+              <p class="team-bio">
+                Ex-Google ML Research. PhD in Behavioral Pattern Recognition from MIT. 
+                Published 12 papers on adversarial bot detection.
+              </p>
+            </div>
+            
+            <div class="team-member">
+              <div class="team-avatar">MJ</div>
+              <div class="team-name">Marcus Johnson</div>
+              <div class="team-role">Head of Growth</div>
+              <p class="team-bio">
+                Ex-Stripe Growth Lead. Scaled developer tools from $0 → $50M ARR in 3 years. 
+                UC Berkeley '16.
+              </p>
+            </div>
+          </div>
+          
+          <div style="margin-top: 3rem; background: var(--dark-lighter); border-radius: 16px; padding: 2rem;">
+            <h3 style="text-align: center; margin-bottom: 2rem;">Advisory Board</h3>
+            <div style="display: flex; justify-content: space-around; flex-wrap: wrap; gap: 2rem;">
+              <div style="text-align: center;">
+                <p style="font-size: 1.3rem; font-weight: 700;">Dr. Jane Kim</p>
+                <p style="color: var(--text-muted);">Ex-VP Security @ Shopify</p>
+              </div>
+              <div style="text-align: center;">
+                <p style="font-size: 1.3rem; font-weight: 700;">David Martinez</p>
+                <p style="color: var(--text-muted);">Ex-CTO @ Discord</p>
+              </div>
+              <div style="text-align: center;">
+                <p style="font-size: 1.3rem; font-weight: 700;">Lisa Wong</p>
+                <p style="color: var(--text-muted);">Partner @ a16z</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Slide 10: The Ask -->
+      <div class="slide" data-slide="10">
+        <div class="slide-content">
+          <h2>The Ask: <span class="gradient-text">$2M Seed Round</span></h2>
+          <p style="text-align: center; font-size: 1.5rem; margin-bottom: 2rem;">
+            18-month runway to reach $5M ARR and Series A readiness
+          </p>
+          
+          <div class="ask-breakdown">
+            <div class="ask-item">
+              <div class="ask-amount">$800K</div>
+              <h3>Engineering</h3>
+              <p style="font-size: 1.2rem; color: var(--text-muted); margin-top: 1rem;">
+                Hire 4 engineers (ML, backend, frontend, DevOps) to build enterprise features
+              </p>
+            </div>
+            
+            <div class="ask-item">
+              <div class="ask-amount">$600K</div>
+              <h3>Sales & Marketing</h3>
+              <p style="font-size: 1.2rem; color: var(--text-muted); margin-top: 1rem;">
+                2 sales reps, content marketing, paid ads, conference sponsorships
+              </p>
+            </div>
+            
+            <div class="ask-item">
+              <div class="ask-amount">$400K</div>
+              <h3>Operations</h3>
+              <p style="font-size: 1.2rem; color: var(--text-muted); margin-top: 1rem;">
+                Legal, accounting, infrastructure, office space, tools
+              </p>
+            </div>
+            
+            <div class="ask-item">
+              <div class="ask-amount">$200K</div>
+              <h3>Reserve</h3>
+              <p style="font-size: 1.2rem; color: var(--text-muted); margin-top: 1rem;">
+                Contingency buffer for unexpected opportunities or challenges
+              </p>
+            </div>
+          </div>
+          
+          <div class="milestone-timeline">
+            <h3 style="margin-bottom: 2rem;">Key Milestones</h3>
+            <div class="timeline-item">
+              <div class="timeline-quarter">Q1 2026</div>
+              <div class="timeline-milestone">
+                <strong>$100K MRR</strong> • Launch Enterprise tier • Close 10 $10K+ deals
+              </div>
+            </div>
+            <div class="timeline-item">
+              <div class="timeline-quarter">Q2 2026</div>
+              <div class="timeline-milestone">
+                <strong>$250K MRR</strong> • 10K paying customers • Shopify App Store #1 Security Plugin
+              </div>
+            </div>
+            <div class="timeline-item">
+              <div class="timeline-quarter">Q3 2026</div>
+              <div class="timeline-milestone">
+                <strong>$400K MRR</strong> • Expand to EU market • Partner with 50 agencies
+              </div>
+            </div>
+            <div class="timeline-item">
+              <div class="timeline-quarter">Q4 2026</div>
+              <div class="timeline-milestone">
+                <strong>$5M ARR</strong> • Raise Series A ($15M @ $80M valuation) • Profitable unit economics
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Slide 11: Closing -->
+      <div class="slide cover-slide" data-slide="11">
+        <div class="slide-content">
+          <div class="cover-content">
+            <div class="logo">🛡️</div>
+            <h1 class="gradient-text">Let's Stop Bots Together</h1>
+            <p style="font-size: 2rem; margin: 2rem 0; max-width: 900px;">
+              Join us in building the future of bot detection.<br>
+              $2M seed round • 18-month runway • $5M ARR target
+            </p>
+            
+            <div style="display: flex; gap: 3rem; justify-content: center; margin-top: 4rem; flex-wrap: wrap;">
+              <div>
+                <p style="font-size: 1.3rem; color: var(--text-muted); margin-bottom: 0.5rem;">Contact</p>
+                <p style="font-size: 1.8rem; font-weight: 700;">alex@universalbotdetector.com</p>
+              </div>
+              <div>
+                <p style="font-size: 1.3rem; color: var(--text-muted); margin-bottom: 0.5rem;">Website</p>
+                <p style="font-size: 1.8rem; font-weight: 700;">universalbotdetector.com</p>
+              </div>
+              <div>
+                <p style="font-size: 1.3rem; color: var(--text-muted); margin-bottom: 0.5rem;">Demo</p>
+                <p style="font-size: 1.8rem; font-weight: 700;">demo.universalbotdetector.com</p>
+              </div>
+            </div>
+            
+            <p style="font-size: 1.2rem; color: var(--text-muted); margin-top: 4rem;">
+              Thank you • Questions?
+            </p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Navigation Controls -->
+    <div class="nav-controls">
+      <button class="nav-btn" id="prevBtn"><i class="fas fa-arrow-left"></i></button>
+      <button class="nav-btn" id="nextBtn"><i class="fas fa-arrow-right"></i></button>
+    </div>
+    
+    <div class="slide-counter">
+      <span id="currentSlide">1</span> / <span id="totalSlides">11</span>
+    </div>
+  </div>
+
+  <script>
+    // Slide Navigation
+    let currentSlide = 1;
+    const totalSlides = 11;
+    
+    function updateSlide(direction) {
+      const slides = document.querySelectorAll('.slide');
+      const current = document.querySelector('.slide.active');
+      
+      if (direction === 'next' && currentSlide < totalSlides) {
+        currentSlide++;
+      } else if (direction === 'prev' && currentSlide > 1) {
+        currentSlide--;
+      } else {
+        return;
+      }
+      
+      current.classList.remove('active');
+      current.classList.add('prev');
+      
+      const next = document.querySelector(`.slide[data-slide="${currentSlide}"]`);
+      next.classList.remove('prev');
+      next.classList.add('active');
+      
+      // Update counter
+      document.getElementById('currentSlide').textContent = currentSlide;
+      
+      // Update progress bar
+      const progress = (currentSlide / totalSlides) * 100;
+      document.getElementById('progressBar').style.width = progress + '%';
+      
+      // Initialize chart if on traction slide
+      if (currentSlide === 5) {
+        initGrowthChart();
+      }
+    }
+    
+    document.getElementById('nextBtn').addEventListener('click', () => updateSlide('next'));
+    document.getElementById('prevBtn').addEventListener('click', () => updateSlide('prev'));
+    
+    // Keyboard navigation
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight' || e.key === ' ') {
+        e.preventDefault();
+        updateSlide('next');
+      } else if (e.key === 'ArrowLeft') {
+        e.preventDefault();
+        updateSlide('prev');
+      }
+    });
+    
+    // Initialize total slides counter
+    document.getElementById('totalSlides').textContent = totalSlides;
+    
+    // Growth Chart (Slide 5)
+    let growthChart = null;
+    
+    function initGrowthChart() {
+      if (growthChart) return; // Already initialized
+      
+      const ctx = document.getElementById('growthChart');
+      if (!ctx) return;
+      
+      growthChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+          datasets: [{
+            label: 'Monthly Revenue',
+            data: [2000, 6800, 23000, 32000, 38000, 42000],
+            borderColor: '#6366f1',
+            backgroundColor: 'rgba(99, 102, 241, 0.1)',
+            borderWidth: 3,
+            tension: 0.4,
+            fill: true
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              display: false
+            },
+            tooltip: {
+              backgroundColor: '#1e293b',
+              titleColor: '#e2e8f0',
+              bodyColor: '#e2e8f0',
+              borderColor: '#6366f1',
+              borderWidth: 1,
+              padding: 12,
+              displayColors: false,
+              callbacks: {
+                label: function(context) {
+                  return '$' + context.parsed.y.toLocaleString();
+                }
+              }
+            }
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              ticks: {
+                color: '#94a3b8',
+                font: {
+                  size: 14
+                },
+                callback: function(value) {
+                  return '$' + (value / 1000) + 'K';
+                }
+              },
+              grid: {
+                color: '#334155'
+              }
+            },
+            x: {
+              ticks: {
+                color: '#94a3b8',
+                font: {
+                  size: 14
+                }
+              },
+              grid: {
+                color: '#334155'
+              }
+            }
+          }
+        }
+      });
+    }
+    
+    // Initialize chart on first load if already on slide 5
+    if (currentSlide === 5) {
+      initGrowthChart();
+    }
+  </script>
+
+</body>
+</html>

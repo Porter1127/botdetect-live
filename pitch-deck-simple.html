@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Universal Bot Detector — Pitch Deck (Simplified)</title>
+  
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: #0f172a;
+      color: #e2e8f0;
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    /* Presentation Container */
+    .presentation {
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* Loading Screen */
+    .loading {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: #0f172a;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      transition: opacity 0.5s;
+    }
+
+    .loading.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .loading-content {
+      text-align: center;
+    }
+
+    .loading-spinner {
+      width: 60px;
+      height: 60px;
+      border: 4px solid rgba(99, 102, 241, 0.2);
+      border-top-color: #6366f1;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 1.5rem;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* Slides */
+    .slides-container {
+      width: 100%;
+      height: 100%;
+      position: relative;
+    }
+
+    .slide {
+      width: 100%;
+      height: 100%;
+      position: absolute;
+      top: 0;
+      left: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 4rem;
+      opacity: 0;
+      transform: translateX(100%);
+      transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .slide.active {
+      opacity: 1;
+      transform: translateX(0);
+      z-index: 10;
+    }
+
+    .slide.prev {
+      transform: translateX(-100%);
+      opacity: 0;
+    }
+
+    /* Slide Content */
+    .slide-content {
+      max-width: 1400px;
+      width: 100%;
+    }
+
+    /* Typography */
+    h1 {
+      font-size: 4rem;
+      font-weight: 900;
+      margin-bottom: 2rem;
+      line-height: 1.1;
+    }
+
+    h2 {
+      font-size: 3rem;
+      font-weight: 800;
+      margin-bottom: 2rem;
+      line-height: 1.2;
+    }
+
+    h3 {
+      font-size: 2rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+    }
+
+    p {
+      font-size: 1.5rem;
+      color: #94a3b8;
+      line-height: 1.8;
+    }
+
+    .gradient-text {
+      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    /* Cover Slide */
+    .cover-slide {
+      background: linear-gradient(135deg, #0f172a 0%, #1a1f3a 100%);
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .cover-slide::before {
+      content: '';
+      position: absolute;
+      width: 1000px;
+      height: 1000px;
+      background: radial-gradient(circle, rgba(99, 102, 241, 0.15) 0%, transparent 70%);
+      top: -300px;
+      right: -300px;
+      animation: float 8s ease-in-out infinite;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translate(0, 0); }
+      50% { transform: translate(-50px, 50px); }
+    }
+
+    .logo {
+      font-size: 6rem;
+      margin-bottom: 1rem;
+      position: relative;
+      z-index: 1;
+    }
+
+    .funding-ask {
+      display: inline-block;
+      padding: 1.5rem 3rem;
+      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      border-radius: 12px;
+      font-size: 2rem;
+      font-weight: 700;
+      margin-top: 3rem;
+    }
+
+    /* Problem Cards */
+    .problem-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 2rem;
+      margin-top: 3rem;
+    }
+
+    .problem-card {
+      background: #1e293b;
+      border: 2px solid #ef4444;
+      border-radius: 16px;
+      padding: 2rem;
+    }
+
+    .problem-icon {
+      font-size: 3rem;
+      color: #ef4444;
+      margin-bottom: 1rem;
+    }
+
+    .stat-large {
+      font-size: 4rem;
+      font-weight: 900;
+      color: #ef4444;
+      margin: 1rem 0;
+    }
+
+    /* Navigation */
+    .nav-controls {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      display: flex;
+      gap: 1rem;
+      z-index: 1000;
+    }
+
+    .nav-btn {
+      width: 60px;
+      height: 60px;
+      background: #6366f1;
+      border: none;
+      border-radius: 50%;
+      color: white;
+      font-size: 1.5rem;
+      cursor: pointer;
+      transition: all 0.3s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .nav-btn:hover {
+      background: #8b5cf6;
+      transform: scale(1.1);
+    }
+
+    .nav-btn:disabled {
+      opacity: 0.3;
+      cursor: not-allowed;
+    }
+
+    .slide-counter {
+      position: fixed;
+      bottom: 2rem;
+      left: 2rem;
+      font-size: 1.8rem;
+      color: #94a3b8;
+      z-index: 1000;
+      background: rgba(15, 23, 42, 0.8);
+      padding: 1rem 1.5rem;
+      border-radius: 8px;
+    }
+
+    /* Progress Bar */
+    .progress-bar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 4px;
+      background: linear-gradient(90deg, #6366f1, #8b5cf6);
+      transition: width 0.3s;
+      z-index: 1000;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      h1 { font-size: 2.5rem; }
+      h2 { font-size: 2rem; }
+      h3 { font-size: 1.5rem; }
+      p { font-size: 1.2rem; }
+      
+      .problem-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .slide {
+        padding: 2rem;
+      }
+    }
+
+    /* Simplified Slides - More Content */
+    .content-section {
+      background: #1e293b;
+      border-radius: 16px;
+      padding: 2rem;
+      margin: 2rem 0;
+    }
+
+    .metric {
+      display: inline-block;
+      margin: 0 2rem;
+      text-align: center;
+    }
+
+    .metric-value {
+      font-size: 3rem;
+      font-weight: 900;
+      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .metric-label {
+      font-size: 1.2rem;
+      color: #94a3b8;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Loading Screen -->
+  <div class="loading" id="loading">
+    <div class="loading-content">
+      <div class="loading-spinner"></div>
+      <p style="font-size: 1.5rem;">Loading Pitch Deck...</p>
+    </div>
+  </div>
+
+  <div class="presentation">
+    <div class="progress-bar" id="progressBar"></div>
+    
+    <div class="slides-container">
+      
+      <!-- Slide 1: Cover -->
+      <div class="slide active cover-slide" data-slide="1">
+        <div class="slide-content">
+          <div class="logo">🛡️</div>
+          <h1 class="gradient-text">Universal Bot Detector</h1>
+          <p style="font-size: 2rem; max-width: 900px; margin: 0 auto;">
+            The Only 3-Layer Bot Detection System That Works
+          </p>
+          <p style="font-size: 1.5rem; margin-top: 2rem; max-width: 800px; margin-left: auto; margin-right: auto;">
+            Stop 99.4% of bots with 0.1% false positives
+          </p>
+          <div class="funding-ask">Raising $2M Seed Round</div>
+          <p style="font-size: 1.3rem; color: #94a3b8; margin-top: 2rem;">
+            Alex Chen, CEO • alex@universalbotdetector.com
+          </p>
+        </div>
+      </div>
+
+      <!-- Slide 2: Problem -->
+      <div class="slide" data-slide="2">
+        <div class="slide-content">
+          <h2>The Bot Crisis Is <span class="gradient-text">Out of Control</span></h2>
+          <div class="problem-grid">
+            <div class="problem-card">
+              <div class="problem-icon"><i class="fas fa-robot"></i></div>
+              <h3>47.4% of Internet Traffic</h3>
+              <div class="stat-large">47.4%</div>
+              <p>Nearly HALF of all web traffic is bots (Imperva 2024)</p>
+            </div>
+            
+            <div class="problem-card">
+              <div class="problem-icon"><i class="fas fa-money-bill-trend-up"></i></div>
+              <h3>$100B Lost Annually</h3>
+              <div class="stat-large">$100B</div>
+              <p>E-commerce, SaaS, gaming industries combined</p>
+            </div>
+            
+            <div class="problem-card">
+              <div class="problem-icon"><i class="fas fa-shield-virus"></i></div>
+              <h3>Existing Solutions Fail</h3>
+              <div class="stat-large">60%</div>
+              <p>reCAPTCHA false positive rate frustrates users</p>
+            </div>
+            
+            <div class="problem-card">
+              <div class="problem-icon"><i class="fas fa-chart-line"></i></div>
+              <h3>Growing 22% YoY</h3>
+              <div class="stat-large">22%</div>
+              <p>Bot sophistication accelerating faster than defenses</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Slide 3: Market -->
+      <div class="slide" data-slide="3">
+        <div class="slide-content" style="text-align: center;">
+          <h2>Massive <span class="gradient-text">$48B Market</span> by 2028</h2>
+          
+          <div class="content-section" style="margin-top: 3rem;">
+            <div class="metric">
+              <div class="metric-value">$48B</div>
+              <div class="metric-label">TAM</div>
+              <p style="font-size: 1rem; margin-top: 0.5rem;">Total Addressable Market</p>
+            </div>
+            
+            <div class="metric">
+              <div class="metric-value">$12B</div>
+              <div class="metric-label">SAM</div>
+              <p style="font-size: 1rem; margin-top: 0.5rem;">Serviceable Market</p>
+            </div>
+            
+            <div class="metric">
+              <div class="metric-value">$600M</div>
+              <div class="metric-label">SOM</div>
+              <p style="font-size: 1rem; margin-top: 0.5rem;">Obtainable in 3 Years</p>
+            </div>
+          </div>
+          
+          <p style="margin-top: 3rem; font-size: 1.8rem;">
+            <strong style="color: #10b981;">22% CAGR</strong> — Fastest growing cybersecurity segment
+          </p>
+        </div>
+      </div>
+
+      <!-- Slide 4: Solution -->
+      <div class="slide" data-slide="4">
+        <div class="slide-content" style="text-align: center;">
+          <h2>Our Solution: <span class="gradient-text">3-Layer Detection</span></h2>
+          
+          <div style="display: flex; gap: 2rem; margin-top: 3rem; justify-content: center;">
+            <div class="content-section" style="flex: 1; max-width: 350px;">
+              <div style="font-size: 4rem; margin-bottom: 1rem;">🛡️</div>
+              <h3>Turnstile</h3>
+              <p>Server-side verification catches headless browsers & VPNs</p>
+            </div>
+            
+            <div class="content-section" style="flex: 1; max-width: 350px;">
+              <div style="font-size: 4rem; margin-bottom: 1rem;">🧠</div>
+              <h3>Behavioral Analysis</h3>
+              <p>Mouse movement entropy detects bots & replay scripts</p>
+            </div>
+            
+            <div class="content-section" style="flex: 1; max-width: 350px;">
+              <div style="font-size: 4rem; margin-bottom: 1rem;">⏱️</div>
+              <h3>Temporal Pattern</h3>
+              <p>Cross-batch analysis catches sophisticated fakers</p>
+            </div>
+          </div>
+          
+          <div style="margin-top: 3rem; padding: 2rem; background: #10b981; border-radius: 12px; display: inline-block;">
+            <p style="font-size: 2.5rem; font-weight: 900; color: white;">
+              99.4% Detection • 0.1% False Positives
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Slide 5: Traction -->
+      <div class="slide" data-slide="5">
+        <div class="slide-content" style="text-align: center;">
+          <h2>Explosive <span class="gradient-text">Traction</span> in 6 Months</h2>
+          
+          <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 2rem; margin-top: 3rem;">
+            <div class="content-section">
+              <div class="metric-value">2,400+</div>
+              <div class="metric-label">Paying Customers</div>
+            </div>
+            
+            <div class="content-section">
+              <div class="metric-value">$42K</div>
+              <div class="metric-label">MRR</div>
+            </div>
+            
+            <div class="content-section">
+              <div class="metric-value">340%</div>
+              <div class="metric-label">MoM Growth</div>
+            </div>
+            
+            <div class="content-section">
+              <div class="metric-value">4.8★</div>
+              <div class="metric-label">Product Hunt</div>
+            </div>
+          </div>
+          
+          <div class="content-section" style="margin-top: 3rem; padding: 3rem;">
+            <h3 style="margin-bottom: 2rem;">Revenue Growth (6 Months)</h3>
+            <p style="font-size: 1.3rem;">
+              Jan: $2K → Feb: $6.8K → Mar: $23K → Apr: $32K → May: $38K → Jun: $42K
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Slide 6: Business Model -->
+      <div class="slide" data-slide="6">
+        <div class="slide-content" style="text-align: center;">
+          <h2><span class="gradient-text">One-Time Payment</span> → High Margins</h2>
+          
+          <div style="display: flex; gap: 2rem; margin-top: 3rem; justify-content: center;">
+            <div class="content-section" style="flex: 1; max-width: 300px;">
+              <h3>Developer</h3>
+              <div class="metric-value">$79</div>
+              <p style="margin-top: 1rem;">58% of revenue</p>
+            </div>
+            
+            <div class="content-section" style="flex: 1; max-width: 300px; border: 3px solid #6366f1;">
+              <h3>Commercial</h3>
+              <div class="metric-value">$199</div>
+              <p style="margin-top: 1rem;">35% of revenue</p>
+            </div>
+            
+            <div class="content-section" style="flex: 1; max-width: 300px;">
+              <h3>Enterprise</h3>
+              <div class="metric-value">$499</div>
+              <p style="margin-top: 1rem;">7% of revenue</p>
+            </div>
+          </div>
+          
+          <div class="content-section" style="margin-top: 3rem;">
+            <h3>3-Year Revenue Projection</h3>
+            <div style="margin-top: 2rem;">
+              <span class="metric" style="margin: 0 2rem;">
+                <div class="metric-value">$504K</div>
+                <div class="metric-label">Year 1</div>
+              </span>
+              <span class="metric" style="margin: 0 2rem;">
+                <div class="metric-value">$2.8M</div>
+                <div class="metric-label">Year 2</div>
+              </span>
+              <span class="metric" style="margin: 0 2rem;">
+                <div class="metric-value">$8.4M</div>
+                <div class="metric-label">Year 3</div>
+              </span>
+            </div>
+            <p style="margin-top: 2rem; font-size: 1.5rem;">
+              <strong style="color: #10b981;">85% Gross Margin</strong> • No hosting costs
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Slide 7: Competitive Advantage -->
+      <div class="slide" data-slide="7">
+        <div class="slide-content">
+          <h2 style="text-align: center;">Why We Win: <span class="gradient-text">3x Better</span></h2>
+          
+          <div class="content-section" style="margin-top: 3rem;">
+            <table style="width: 100%; border-collapse: collapse;">
+              <thead>
+                <tr style="background: #6366f1;">
+                  <th style="padding: 1.5rem; text-align: left; font-size: 1.3rem;">Feature</th>
+                  <th style="padding: 1.5rem; text-align: center; font-size: 1.3rem;">Us</th>
+                  <th style="padding: 1.5rem; text-align: center; font-size: 1.3rem;">reCAPTCHA</th>
+                  <th style="padding: 1.5rem; text-align: center; font-size: 1.3rem;">DataDome</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr style="background: rgba(255,255,255,0.02);">
+                  <td style="padding: 1.5rem; font-size: 1.2rem;">Detection Rate</td>
+                  <td style="padding: 1.5rem; text-align: center; font-size: 1.5rem; font-weight: 900; color: #10b981;">99.4%</td>
+                  <td style="padding: 1.5rem; text-align: center; font-size: 1.2rem;">85%</td>
+                  <td style="padding: 1.5rem; text-align: center; font-size: 1.2rem;">97%</td>
+                </tr>
+                <tr>
+                  <td style="padding: 1.5rem; font-size: 1.2rem;">False Positives</td>
+                  <td style="padding: 1.5rem; text-align: center; font-size: 1.5rem; font-weight: 900; color: #10b981;">0.1%</td>
+                  <td style="padding: 1.5rem; text-align: center; font-size: 1.2rem;">60%</td>
+                  <td style="padding: 1.5rem; text-align: center; font-size: 1.2rem;">5%</td>
+                </tr>
+                <tr style="background: rgba(255,255,255,0.02);">
+                  <td style="padding: 1.5rem; font-size: 1.2rem;">Setup Time</td>
+                  <td style="padding: 1.5rem; text-align: center; font-size: 1.5rem; font-weight: 900; color: #10b981;">&lt;60 sec</td>
+                  <td style="padding: 1.5rem; text-align: center; font-size: 1.2rem;">~5 min</td>
+                  <td style="padding: 1.5rem; text-align: center; font-size: 1.2rem;">~3 hrs</td>
+                </tr>
+                <tr>
+                  <td style="padding: 1.5rem; font-size: 1.2rem;">Pricing</td>
+                  <td style="padding: 1.5rem; text-align: center; font-size: 1.5rem; font-weight: 900; color: #10b981;">$79-499</td>
+                  <td style="padding: 1.5rem; text-align: center; font-size: 1.2rem;">$200K+</td>
+                  <td style="padding: 1.5rem; text-align: center; font-size: 1.2rem;">$100K+</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          
+          <p style="text-align: center; margin-top: 2rem; font-size: 1.8rem;">
+            <strong style="color: #10b981;">10-100x cheaper</strong> with superior accuracy
+          </p>
+        </div>
+      </div>
+
+      <!-- Slide 8: The Ask -->
+      <div class="slide" data-slide="8">
+        <div class="slide-content" style="text-align: center;">
+          <h2>The Ask: <span class="gradient-text">$2M Seed Round</span></h2>
+          <p style="font-size: 1.5rem; margin-bottom: 2rem;">
+            18-month runway to $5M ARR
+          </p>
+          
+          <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 2rem; margin-top: 3rem;">
+            <div class="content-section">
+              <div class="metric-value">$800K</div>
+              <h3>Engineering</h3>
+              <p style="margin-top: 1rem;">Hire 4 engineers for enterprise features</p>
+            </div>
+            
+            <div class="content-section">
+              <div class="metric-value">$600K</div>
+              <h3>Sales & Marketing</h3>
+              <p style="margin-top: 1rem;">2 sales reps, content, paid ads</p>
+            </div>
+            
+            <div class="content-section">
+              <div class="metric-value">$400K</div>
+              <h3>Operations</h3>
+              <p style="margin-top: 1rem;">Legal, accounting, infrastructure</p>
+            </div>
+            
+            <div class="content-section">
+              <div class="metric-value">$200K</div>
+              <h3>Reserve</h3>
+              <p style="margin-top: 1rem;">Contingency buffer</p>
+            </div>
+          </div>
+          
+          <div class="content-section" style="margin-top: 3rem;">
+            <p style="font-size: 1.5rem; line-height: 2;">
+              <strong>Q1 2026:</strong> $100K MRR<br>
+              <strong>Q2 2026:</strong> $250K MRR<br>
+              <strong>Q3 2026:</strong> $400K MRR<br>
+              <strong>Q4 2026:</strong> $5M ARR → Series A
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Slide 9: Closing -->
+      <div class="slide cover-slide" data-slide="9">
+        <div class="slide-content" style="text-align: center;">
+          <div class="logo">🛡️</div>
+          <h1 class="gradient-text">Let's Stop Bots Together</h1>
+          <p style="font-size: 2rem; margin: 2rem 0; max-width: 900px; margin-left: auto; margin-right: auto;">
+            Join us in building the future of bot detection
+          </p>
+          
+          <div style="margin-top: 4rem;">
+            <div class="metric" style="margin: 0 2rem;">
+              <div class="metric-label">Contact</div>
+              <p style="font-size: 1.8rem; font-weight: 700; color: #e2e8f0; margin-top: 0.5rem;">alex@universalbotdetector.com</p>
+            </div>
+            
+            <div class="metric" style="margin: 0 2rem;">
+              <div class="metric-label">Website</div>
+              <p style="font-size: 1.8rem; font-weight: 700; color: #e2e8f0; margin-top: 0.5rem;">universalbotdetector.com</p>
+            </div>
+          </div>
+          
+          <p style="font-size: 1.5rem; color: #94a3b8; margin-top: 4rem;">
+            Thank you • Questions?
+          </p>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Navigation Controls -->
+    <div class="nav-controls">
+      <button class="nav-btn" id="prevBtn"><i class="fas fa-arrow-left"></i></button>
+      <button class="nav-btn" id="nextBtn"><i class="fas fa-arrow-right"></i></button>
+    </div>
+    
+    <div class="slide-counter">
+      <span id="currentSlide">1</span> / <span id="totalSlides">9</span>
+    </div>
+  </div>
+
+  <script>
+    // Hide loading screen
+    window.addEventListener('load', () => {
+      setTimeout(() => {
+        document.getElementById('loading').classList.add('hidden');
+      }, 500);
+    });
+
+    // Slide Navigation
+    let currentSlide = 1;
+    const totalSlides = 9;
+    
+    function updateSlide(direction) {
+      const slides = document.querySelectorAll('.slide');
+      const current = document.querySelector('.slide.active');
+      
+      let newSlide = currentSlide;
+      
+      if (direction === 'next' && currentSlide < totalSlides) {
+        newSlide = currentSlide + 1;
+      } else if (direction === 'prev' && currentSlide > 1) {
+        newSlide = currentSlide - 1;
+      } else {
+        return;
+      }
+      
+      currentSlide = newSlide;
+      
+      // Remove active from all
+      slides.forEach(s => {
+        s.classList.remove('active');
+        s.classList.add('prev');
+      });
+      
+      // Add active to current
+      const nextSlide = document.querySelector(`.slide[data-slide="${currentSlide}"]`);
+      nextSlide.classList.remove('prev');
+      nextSlide.classList.add('active');
+      
+      // Update counter
+      document.getElementById('currentSlide').textContent = currentSlide;
+      
+      // Update progress bar
+      const progress = (currentSlide / totalSlides) * 100;
+      document.getElementById('progressBar').style.width = progress + '%';
+      
+      // Update button states
+      document.getElementById('prevBtn').disabled = currentSlide === 1;
+      document.getElementById('nextBtn').disabled = currentSlide === totalSlides;
+    }
+    
+    document.getElementById('nextBtn').addEventListener('click', () => updateSlide('next'));
+    document.getElementById('prevBtn').addEventListener('click', () => updateSlide('prev'));
+    
+    // Keyboard navigation
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight' || e.key === ' ') {
+        e.preventDefault();
+        updateSlide('next');
+      } else if (e.key === 'ArrowLeft') {
+        e.preventDefault();
+        updateSlide('prev');
+      }
+    });
+    
+    // Initialize
+    document.getElementById('prevBtn').disabled = true;
+    document.getElementById('progressBar').style.width = (1 / totalSlides * 100) + '%';
+  </script>
+
+</body>
+</html>
